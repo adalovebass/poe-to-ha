@@ -4,16 +4,7 @@ import requests
 from pathlib import Path
 
 
-# PREREQUISITES
-# 1. pip install requests
-# 2. Configure values under Configuration
-#
-# To generate a HA long lived access key:
-#    1. In HA, click your profile pic in the sidebar
-#    2. Click "Security" along the top
-#    3. At the bottom, under "Long Lived Access Tokens," click "Create Token".
-#    4. Give it a meaningful name, and submit.
-#    5. Copy the code (you will not be able to see it again).
+# For configuration and setup help, see README.md.
 
 
 try:

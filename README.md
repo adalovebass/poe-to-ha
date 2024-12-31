@@ -30,7 +30,7 @@ This script monitors your Path of Exile log file for incoming trade requests and
    - Click "Security" along the top
    - Scroll to "Long Lived Access Tokens"
    - Click "Create Token"
-   - Give it a name (e.g., "POE Trade")
+   - Give it a name (e.g., "POE Trade", or your PC's name)
    - Copy the token (you won't see it again!)
 
 2. Update `config.py` with your settings:
