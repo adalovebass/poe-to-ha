@@ -100,6 +100,7 @@ The script will:
 
 When a trade message comes in, these fields are available in Home Assistant automations under `trigger.event.data`:
 
+- `player_name`: Your name or character name (see config.py)
 - `date`: Date of trade request
 - `time`: Time of trade request
 - `buyer_name`: Name of the player wanting to buy

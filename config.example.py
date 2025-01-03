@@ -1,5 +1,6 @@
-# See readme.md for configuration inforamtion
+# See readme.md for configuration information
 
+PLAYER_NAME = "You"
 HA_API_KEY = "your token here"
 HA_ADDRESS = "homeassistant.local:8123"  # Your Home Assistant address
 HA_EVENT = "poe_trade_incoming"  # The event name that will be sent to Home Assistant

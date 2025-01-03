@@ -52,6 +52,9 @@ def tail_file(file_path):
 
 def send_to_home_assistant(trade_data):
     """Send trade data to Home Assistant"""
+    # Add the player name to the trade data
+    trade_data['player_name'] = PLAYER_NAME
+    
     url = f"http://{HA_ADDRESS}/api/events/{HA_EVENT}"
     headers = {
         "Authorization": f"Bearer {HA_API_KEY}",
@@ -64,6 +67,7 @@ def send_to_home_assistant(trade_data):
         print(f"Successfully sent trade notification for {trade_data['item_name']}")
     except requests.exceptions.RequestException as e:
         print(f"Failed to send to Home Assistant: {e}")
+        
 
 def main():
     log_path = Path(LOG_FILE)
