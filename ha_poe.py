@@ -21,10 +21,10 @@ def parse_trade_message(message):
     match = re.search(TRADE_PATTERN, message)
     if match:
         trade_data = {
-            'player_name': PLAYER_NAME,
+            'sending_player_name': PLAYER_NAME,
             'date': match.group(1),
             'time': match.group(2),
-            'buyer_name': match.group(3),
+            'buyer_player_name': match.group(3),
             'item_name': match.group(4),
             'item_cost': match.group(5),
             'league': match.group(6).strip(),
@@ -33,71 +33,80 @@ def parse_trade_message(message):
             'top': match.group(9)
         }
 
-        print(f"Trade request detected for {trade_data['item_name']}")
+        print(f"Trade request detected ({trade_data['item_cost']}for {trade_data['item_name']})")
         send_to_home_assistant("poe_trade_incoming", trade_data)
 
         return True
     return False
 
-
+# This set is populated with other player names who join your area, so we can ignore death/level messages for them.
 other_area_members = set()
 
-AREA_JOINED_PATTERN = r'.*\[INFO Client \d+\] : ([^\\]+) has joined the area\.'
+AREA_JOINED_PATTERN = r'(\d{4}/\d{2}/\d{2}) (\d{2}:\d{2}:\d{2}).*\[INFO Client \d+\] : ([^\\]+) has joined the area\.'
 
 def parse_join_message(message):
     match = re.search(AREA_JOINED_PATTERN, message)
     if match:
-        username = match.group(1)
+        username = match.group(3)
         other_area_members.add(username)
         print(f"Added {username} to 'other area members': {other_area_members}")
         return True
     return False
 
 
-AREA_LEFT_PATTERN = r'.*\[INFO Client \d+\] : ([^\\]+) has left the area\.'
+AREA_LEFT_PATTERN = r'(\d{4}/\d{2}/\d{2}) (\d{2}:\d{2}:\d{2}).*\[INFO Client \d+\] : ([^\\]+) has left the area\.'
 
 def parse_left_message(message):
     match = re.search(AREA_LEFT_PATTERN, message)
     if match:
-        username = match.group(1)
+        username = match.group(3)
         other_area_members.discard(username)  # discard() won't raise error if not present
         print(f"Removed {username} from 'other area members': {other_area_members}")
         return True
     return False
 
 
-LEVEL_UP_PATTERN = r'.*\[INFO Client \d+\] : ([^\s]+) \(([^)]+)\) is now level \d+'
+LEVEL_UP_PATTERN = r'(\d{4}/\d{2}/\d{2}) (\d{2}:\d{2}:\d{2}).*\[INFO Client \d+\] : ([^\s]+) \(([^)]+)\) is now level \d+'
 
 def parse_level_up_message(message):
     level_match = re.search(LEVEL_UP_PATTERN, message)
     if level_match:
         data = {
-            'player_name': PLAYER_NAME,
-            'player_log_name': level_match.group(1),
-            'class_name': level_match.group(2)
+            'sending_player_name': PLAYER_NAME,
+            'date': level_match.group(1),
+            'time': level_match.group(2),
+            'leveled_player_name': level_match.group(3),
+            'class_name': level_match.group(4)
         }
 
-        if data['player_log_name'] not in other_area_members:
+        if data['leveled_player_name'] not in other_area_members:
+            print(f"Detected level event for us")
             send_to_home_assistant("poe_player_leveled", data)
             return True
+        else:
+            print(f"Detected level event for another party member.")
     return False
 
-DEATH_PATTERN = r'.*\[INFO Client \d+\] : ([^\s]+) has been slain\.'
+
+DEATH_PATTERN = r'(\d{4}/\d{2}/\d{2}) (\d{2}:\d{2}:\d{2}).*\[INFO Client \d+\] : ([^\s]+) has been slain\.'
 
 def parse_death_message(message):
     death_match = re.search(DEATH_PATTERN, message)
     if death_match:
         data = {
-            'player_name': PLAYER_NAME,
-            'player_log_name': death_match.group(1)
+            'sending_player_name': PLAYER_NAME,
+            'date': death_match.group(1),
+            'time': death_match.group(2),
+            'dead_player_name': death_match.group(3)
         }
 
-        if data['player_log_name'] not in other_area_members:
+        if data['dead_player_name'] not in other_area_members:
             send_to_home_assistant("poe_player_died", data)
+            print(f"Detected death event for us")
             return True
+        else:
+            print(f"Detected death event for another party member.")
     return False
-
-
 
 
 def tail_file(file_path):
@@ -149,6 +158,7 @@ def main():
     
     try:  # Add try/except to catch any file reading errors
         for line in tail_file(LOG_FILE):
+
             if DEBUG:
                 print(f"Read line: {line[:76]}...")  # Debug print first n chars
             
