@@ -113,7 +113,7 @@ def parse_death_message(message):
 def tail_file(file_path):
     """Generator function to tail a file similar to Unix 'tail -f'"""
     print("Starting to tail file...")  # Debug print
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, 'r', encoding='utf-8', errors='replace') as file:
         print("File opened successfully")
 
         # First, read and discard existing content
