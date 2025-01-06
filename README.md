@@ -96,6 +96,7 @@ Available data:
 - `time`: Time of event
 - `leveled_player_name`: Character name from log
 - `class_name`: Character class
+- `level`: New level
 
 ### poe_player_died
 Only triggers for your character (filtered from party members).
