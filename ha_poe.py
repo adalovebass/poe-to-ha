@@ -66,7 +66,7 @@ def parse_left_message(message):
     return False
 
 
-LEVEL_UP_PATTERN = r'(\d{4}/\d{2}/\d{2}) (\d{2}:\d{2}:\d{2}).*\[INFO Client \d+\] : ([^\s]+) \(([^)]+)\) is now level \d+'
+LEVEL_UP_PATTERN = r'(\d{4}/\d{2}/\d{2}) (\d{2}:\d{2}:\d{2}).*\[INFO Client \d+\] : ([^\s]+) \(([^)]+)\) is now level (\d+)'
 
 def parse_level_up_message(message):
     level_match = re.search(LEVEL_UP_PATTERN, message)
@@ -76,7 +76,8 @@ def parse_level_up_message(message):
             'date': level_match.group(1),
             'time': level_match.group(2),
             'leveled_player_name': level_match.group(3),
-            'class_name': level_match.group(4)
+            'class_name': level_match.group(4),
+            'level': level_match.group(5)
         }
 
         if data['leveled_player_name'] not in other_area_members:
